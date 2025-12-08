@@ -7,9 +7,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(OpenSSL REQUIRED)
 find_package(cpprestsdk REQUIRED)
 
-add_executable(hmac_service
-
+set(SOURCES
+        main.cpp
 )
+
+add_executable(hmac_service ${SOURCES})
 
 target_link_libraries(hmac_service
         PRIVATE
