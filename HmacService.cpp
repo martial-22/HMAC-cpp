@@ -35,7 +35,7 @@ bool HmacService::Verify(std::string_view message, std::string_view signature) {
     
     bool result = actual_signature.size() != signature.size();
     for (std::size_t i = 0; i < signature.size(); ++i) {
-        result |= signature[i] ^ actual_signature[i];
+        result = result || signature[i] ^ actual_signature[i];
     }
     return result == 0;
 }
