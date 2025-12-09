@@ -8,6 +8,8 @@ find_package(OpenSSL REQUIRED)
 find_package(cpprestsdk REQUIRED)
 
 set(SOURCES
+        HmacService.h
+        HmacService.cpp
         Server.h
         Server.cpp
         main.cpp
