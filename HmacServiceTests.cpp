@@ -49,4 +49,3 @@ TEST(HmacServiceTest, Stability) {
         ASSERT_EQ(hmac.Sign(message), signature);
     }
 }
-
