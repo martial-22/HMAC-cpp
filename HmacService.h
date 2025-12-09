@@ -1,21 +1,17 @@
+#include <string>
 #include <string_view>
 
 namespace hmac_service {
 
-struct Secret {
-    const void* data = nullptr;
-    const int len = 0;
-};
-
-class HmacService {
+class HmacService final {
 public:
-    HmacService(Secret secret);
+    HmacService(std::string secret);
 
     std::string Sign(std::string_view message);
     bool Verify(std::string_view message, std::string_view signature);
 
 private:
-    const Secret secret_;
+    const std::string secret_;
 };
 
 }

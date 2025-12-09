@@ -1,38 +1,43 @@
 #include "HmacService.h"
 
+#include <array>
 #include <openssl/hmac.h>
-#include <string>
 
 namespace hmac_service {
 
-HmacService::HmacService(Secret secret)
-    : secret_(secret) {
+HmacService::HmacService(std::string secret)
+    : secret_(std::move(secret)) {
 }
 
 std::string HmacService::Sign(std::string_view message) {
-    unsigned int len = 0;
-    unsigned char out[EVP_MAX_MD_SIZE];
-    HMAC(EVP_sha256(), secret_.data, secret_.len, message.data(), message.size(), out, &len);
 
-    std::string result;
-    result.reserve(len);
+    const void* key = reinterpret_cast<const void*>(secret_.data());
+    std::size_t key_len = 0;
+    if (!secret_.empty()) {
+        key_len = secret_.size() * sizeof(secret_.front()) / sizeof(unsigned char);
+    }
 
-    std::copy(std::begin(out), std::end(out), std::back_inserter(result));
-    return result;
+    const unsigned char* data = reinterpret_cast<const unsigned char*>(message.data());
+    std::size_t data_len = 0;
+    if (!message.empty()) {
+        data_len = message.size() * sizeof(message.front()) / sizeof(unsigned char);
+    }
+
+    std::array<unsigned char, EVP_MAX_MD_SIZE> out;
+    unsigned int out_len = 0;
+    
+    HMAC(EVP_sha256(), key, key_len, data, data_len, out.data(), &out_len);
+    return std::string(out.begin(), std::next(out.begin(), out_len));
 }
 
 bool HmacService::Verify(std::string_view message, std::string_view signature) {
     const std::string actual_signature = Sign(message);
-
-    if (actual_signature.size() != signature.size()) {
-        return false;
-    }
-
-    bool result = false;
+    
+    bool result = actual_signature.size() != signature.size();
     for (std::size_t i = 0; i < signature.size(); ++i) {
         result |= signature[i] ^ actual_signature[i];
     }
-    return result == false;
+    return result == 0;
 }
 
 }
