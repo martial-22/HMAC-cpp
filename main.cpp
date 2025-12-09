@@ -4,15 +4,15 @@
 
 int main(int argc, char* argv[])
 {
-	try{
+    try {
         hmac_service::Server server(U("http://localhost:8080/"));
 		
         std::cout << "Press Enter to stop server\n";
         std::string dummy;
         std::getline(std::cin, dummy);
-	}
-	catch (const std::exception & e) {
+    }
+    catch (const std::exception & e) {
         std::cerr << "Exception: " << e.what() << " was thrown\n";
-	}
-	return 0;
+    }
+    return 0;
 }
