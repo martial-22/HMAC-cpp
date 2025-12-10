@@ -14,6 +14,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: build
-      run: ./build.sh
+      run: chmod 711 build.sh && ./build.sh
     - name: units
       run: ./build/tests
