@@ -5,13 +5,13 @@ namespace hmac_service {
 
 class HmacService final {
 public:
-    HmacService(std::string secret);
+    HmacService(std::string_view secret);
 
     std::string Sign(std::string_view message);
     bool Verify(std::string_view message, std::string_view signature);
 
 private:
-    const std::string secret_;
+    const std::string_view secret_;
 };
 
 }

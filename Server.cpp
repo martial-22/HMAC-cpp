@@ -36,46 +36,54 @@ void SetErrorReply(const http::http_request& request, http::status_code status, 
 	request.reply(status, reply);
 }
 
-void HandleSign(const json::value& json_obj, const http::http_request& request) {
+void HandleSign(const json::value& json_obj, const http::http_request& request, const Config& config) {
 
 	static constexpr char message_field[]("msg");
 	if (!json_obj.has_field(message_field)) {
 		SetErrorReply(request, http::status_codes::BadRequest, "invalid_msg"s);
 		return;
 	}
-	// TODO: check message length
 
 	const std::string message = json_obj.at(message_field).as_string();
+	if (message.size() > config.GetMaxMessageLen()) {
+		SetErrorReply(request, http::status_codes::RequestEntityTooLarge, "too_large_msg"s);
+		return;
+	}
 	
-	// TODO: remove "secret"
-	const std::string signature = HmacService("secret"s).Sign(message);
+	const std::string signature = HmacService(config.GetSecret()).Sign(message);
 
 	json::value reply;
 	reply["signature"s] = json::value::string(std::move(signature));
 	request.reply(http::status_codes::OK, std::move(reply));
 }
 
-void HandleVerify(const json::value& json_obj, const http::http_request& request) {
+void HandleVerify(const json::value& json_obj, const http::http_request& request, const Config& config) {
 
 	static constexpr char message_field[]("msg");
 	if (!json_obj.has_field(message_field)) {
 		SetErrorReply(request, http::status_codes::BadRequest, "invalid_msg"s);
 		return;
 	}
-	// TODO: check message length
+
+	const std::string message = json_obj.at(message_field).as_string();
+	if (message.size() > config.GetMaxMessageLen()) {
+		SetErrorReply(request, http::status_codes::RequestEntityTooLarge, "too_large_msg"s);
+		return;
+	}
 
 	static constexpr char signature_field[]("signature");
 	if (!json_obj.has_field(signature_field)) {
 		SetErrorReply(request, http::status_codes::BadRequest, "invalid_signature"s);
 		return;
 	}
-	// TODO: check signature length
 
-	const std::string message = json_obj.at(message_field).as_string();
 	const std::string signature = json_obj.at(signature_field).as_string();
+	if (signature.size() > config.GetMaxMessageLen()) {
+		SetErrorReply(request, http::status_codes::RequestEntityTooLarge, "too_large_signature"s);
+		return;
+	}
 
-	// TODO: remove "secret"
-	const bool verification = HmacService("secret"s).Verify(message, signature);
+	const bool verification = HmacService(config.GetSecret()).Verify(message, signature);
 
 	json::value reply;
 	reply["ok"s] = json::value::boolean(verification);
@@ -114,12 +122,17 @@ void Server::HandlePost(const http::http_request& request) {
 		return;
 	}
 
+	if (!config_ || !config_->Upload()) {
+		SetErrorReply(request, http::status_codes::InternalError, "config_error"s);
+		return;
+	}
+
 	const std::string endpoint = request.relative_uri().to_string();
 	if (endpoint == "/sign"s) {
-		HandleSign(*json_obj, request);
+		HandleSign(*json_obj, request, *config_);
 	}
 	else if (endpoint == "/verify"s) {
-		HandleVerify(*json_obj, request);
+		HandleVerify(*json_obj, request, *config_);
 	}
 	else {
 		SetErrorReply(request, http::status_codes::BadRequest, "unsupported_endpoint"s);

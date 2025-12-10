@@ -6,8 +6,8 @@
 
 namespace hmac_service {
 
-HmacService::HmacService(std::string secret)
-    : secret_(std::move(secret)) {
+HmacService::HmacService(std::string_view secret)
+    : secret_(secret) {
 }
 
 std::string HmacService::Sign(std::string_view message) {
