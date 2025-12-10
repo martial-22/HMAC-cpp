@@ -14,7 +14,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: install external dependencies
-      run: sudo apt-get install libssl-dev libcpprest-dev
+      run: sudo apt-get install libssl-dev libcpprest-dev nlohmann-json3-dev
     - name: build
       run: chmod 711 build.sh && ./build.sh
     - name: units
