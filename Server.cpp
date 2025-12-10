@@ -26,63 +26,85 @@ std::optional<json::value> ExtractJson(const http::http_request& request) {
 	return json_obj;
 }
 
-void HandleSign(const json::value& json_obj, const http::http_request& request) {
+std::pair<web::http::status_code, json::value> HandleSign(const json::value& json_obj, const http::http_request& request) {
 
+	json::value reply;
 	static constexpr char message_field[]("msg");
-	if (!json_obj.has_field(message_field)) {
-		// TODO: process
-		return;
-	}
 
-	std::string message = json_obj.at(message_field).as_string();
+	if (!json_obj.has_field(message_field)) {
+		reply["error"s] = json::value::string("invalid_msg");
+		return std::make_pair(web::http::status_codes::BadRequest, std::move(reply));
+	}
+	// TODO: check message length
+
+	const std::string message = json_obj.at(message_field).as_string();
 	
 	// TODO: remove "secret"
 	const std::string signature = HmacService("secret"s).Sign(message);
 
-	json::value reply;
 	reply["signature"s] = json::value::string(std::move(signature));
-	request.reply(web::http::status_codes::OK, reply);
+	return std::make_pair(web::http::status_codes::OK, std::move(reply));
 }
 
-void HandleVerify(const json::value& json_obj, const http::http_request& request) {
+std::pair<web::http::status_code, json::value> HandleVerify(const json::value& json_obj, const http::http_request& request) {
+
+	json::value reply;
 
 	static constexpr char message_field[]("msg");
 	static constexpr char signature_field[]("signature");
-
-	if (!json_obj.has_field(message_field) || !json_obj.has_field(signature_field)) {
-		// TODO: process
-		return;
+	
+	if (!json_obj.has_field(message_field)) {
+		reply["error"s] = json::value::string("invalid_msg");
+		return std::make_pair(web::http::status_codes::BadRequest, std::move(reply));
 	}
+	// TODO: check message length
 
-	std::string message = json_obj.at(message_field).as_string();
-	std::string signature = json_obj.at(signature_field).as_string();
+	if (!json_obj.has_field(signature_field)) {
+		reply["error"s] = json::value::string("invalid_signature");
+		return std::make_pair(web::http::status_codes::BadRequest, std::move(reply));
+	}
+	// TODO: check signature length
+
+	const std::string message = json_obj.at(message_field).as_string();
+	const std::string signature = json_obj.at(signature_field).as_string();
 
 	// TODO: remove "secret"
 	const bool verification = HmacService("secret"s).Verify(message, signature);
 
-	json::value reply;
 	reply["ok"s] = json::value::boolean(verification);
-	request.reply(web::http::status_codes::OK, reply);
+	return std::make_pair(web::http::status_codes::OK, std::move(reply));
 }
 
 void HandlePost(http::http_request request) {
+
+	json::value reply;
+	if (request.headers().find("application/json"s) == request.headers().end()) {
+		
+		reply["error"s] = json::value::string("unsupported_header");
+		request.reply(web::http::status_codes::UnsupportedMediaType, reply);
+		return;
+	}
 	
 	const std::optional<json::value> json_obj = ExtractJson(request);
 	if (!json_obj.has_value()) {
-		// TODO: Process
+		
+		reply["error"s] = json::value::string("invalid_json");
+		request.reply(web::http::status_codes::BadRequest, reply);
 		return;
 	}
 
 	const std::string endpoint = request.relative_uri().to_string();
 	if (endpoint == "/sign"s) {
-		HandleSign(*json_obj, request);
+		const auto [status, reply] = HandleSign(*json_obj, request);
+		request.reply(status, reply);
 	}
 	else if (endpoint == "/verify"s) {
-		HandleVerify(*json_obj, request);
+		const auto [status, reply] = HandleVerify(*json_obj, request);
+		request.reply(status, reply);
 	}
 	else {
-		// TODO: process
-		return;
+		reply["error"s] = json::value::string("unsupported_endpoint");
+		request.reply(web::http::status_codes::BadRequest, reply);
 	}
 }
 
@@ -92,9 +114,7 @@ Server::Server(http::uri uri)
     : listener_(std::move(uri)) {
 
 	listener_.support(web::http::methods::POST, HandlePost);
-	listener_.open()
-		.then([]() { /* TODO: replace with logger*/ std::cout << "Starting server\n"s; })
-		.wait();
+	listener_.open().wait();
 }
 
 }
