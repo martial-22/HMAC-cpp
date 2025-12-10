@@ -26,14 +26,19 @@ std::optional<json::value> ExtractJson(const http::http_request& request) {
 	return json_obj;
 }
 
-std::pair<web::http::status_code, json::value> HandleSign(const json::value& json_obj, const http::http_request& request) {
-
+void SetErrorReply(const http::http_request& request, http::status_code status, std::string error_msg) {
+	
 	json::value reply;
-	static constexpr char message_field[]("msg");
+	reply["error"s] = json::value::string(std::move(error_msg));
+	request.reply(status, reply);
+}
 
+void HandleSign(const json::value& json_obj, const http::http_request& request) {
+
+	static constexpr char message_field[]("msg");
 	if (!json_obj.has_field(message_field)) {
-		reply["error"s] = json::value::string("invalid_msg"s);
-		return std::make_pair(web::http::status_codes::BadRequest, std::move(reply));
+		SetErrorReply(request, http::status_codes::BadRequest, "invalid_msg"s);
+		return;
 	}
 	// TODO: check message length
 
@@ -42,26 +47,24 @@ std::pair<web::http::status_code, json::value> HandleSign(const json::value& jso
 	// TODO: remove "secret"
 	const std::string signature = HmacService("secret"s).Sign(message);
 
+	json::value reply;
 	reply["signature"s] = json::value::string(std::move(signature));
-	return std::make_pair(web::http::status_codes::OK, std::move(reply));
+	request.reply(http::status_codes::OK, std::move(reply));
 }
 
-std::pair<web::http::status_code, json::value> HandleVerify(const json::value& json_obj, const http::http_request& request) {
-
-	json::value reply;
+void HandleVerify(const json::value& json_obj, const http::http_request& request) {
 
 	static constexpr char message_field[]("msg");
-	static constexpr char signature_field[]("signature");
-	
 	if (!json_obj.has_field(message_field)) {
-		reply["error"s] = json::value::string("invalid_msg"s);
-		return std::make_pair(web::http::status_codes::BadRequest, std::move(reply));
+		SetErrorReply(request, http::status_codes::BadRequest, "invalid_msg"s);
+		return;
 	}
 	// TODO: check message length
 
+	static constexpr char signature_field[]("signature");
 	if (!json_obj.has_field(signature_field)) {
-		reply["error"s] = json::value::string("invalid_signature"s);
-		return std::make_pair(web::http::status_codes::BadRequest, std::move(reply));
+		SetErrorReply(request, http::status_codes::BadRequest, "invalid_signature"s);
+		return;
 	}
 	// TODO: check signature length
 
@@ -71,40 +74,33 @@ std::pair<web::http::status_code, json::value> HandleVerify(const json::value& j
 	// TODO: remove "secret"
 	const bool verification = HmacService("secret"s).Verify(message, signature);
 
+	json::value reply;
 	reply["ok"s] = json::value::boolean(verification);
-	return std::make_pair(web::http::status_codes::OK, std::move(reply));
+	request.reply(http::status_codes::OK, std::move(reply));
 }
 
 void HandlePost(http::http_request request) {
 
-	json::value reply;
 	if (request.headers().content_type() != "application/json"s) {
-		
-		reply["error"s] = json::value::string("unsupported_header"s);
-		request.reply(web::http::status_codes::UnsupportedMediaType, reply);
+		SetErrorReply(request, http::status_codes::UnsupportedMediaType, "unsupported_header"s);
 		return;
 	}
 	
 	const std::optional<json::value> json_obj = ExtractJson(request);
 	if (!json_obj.has_value()) {
-		
-		reply["error"s] = json::value::string("invalid_json"s);
-		request.reply(web::http::status_codes::BadRequest, reply);
+		SetErrorReply(request, http::status_codes::BadRequest, "invalid_json"s);
 		return;
 	}
 
 	const std::string endpoint = request.relative_uri().to_string();
 	if (endpoint == "/sign"s) {
-		const auto [status, reply] = HandleSign(*json_obj, request);
-		request.reply(status, reply);
+		HandleSign(*json_obj, request);
 	}
 	else if (endpoint == "/verify"s) {
-		const auto [status, reply] = HandleVerify(*json_obj, request);
-		request.reply(status, reply);
+		HandleVerify(*json_obj, request);
 	}
 	else {
-		reply["error"s] = json::value::string("unsupported_endpoint"s);
-		request.reply(web::http::status_codes::BadRequest, reply);
+		SetErrorReply(request, http::status_codes::BadRequest, "unsupported_endpoint"s);
 	}
 }
 
