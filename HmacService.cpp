@@ -1,4 +1,5 @@
 #include "HmacService.h"
+#include "Codec.h"
 
 #include <array>
 #include <openssl/hmac.h>
@@ -27,7 +28,8 @@ std::string HmacService::Sign(std::string_view message) {
     unsigned int out_len = 0;
     
     HMAC(EVP_sha256(), key, key_len, data, data_len, out.data(), &out_len);
-    return std::string(out.begin(), std::next(out.begin(), out_len));
+    
+    return Codec().ToBase64Url(out.data(), out_len);
 }
 
 bool HmacService::Verify(std::string_view message, std::string_view signature) {
