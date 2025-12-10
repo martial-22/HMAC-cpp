@@ -7,9 +7,12 @@ using namespace std::literals;
 
 namespace hmac_service {
 
+Config::~Config() {
+}
+
 bool Config::Upload() {
 
-    std::ifstream ifs("Config.json");
+    std::ifstream ifs("config.json"s);
     if (!ifs.is_open()) {
         return false;
     }
@@ -33,7 +36,7 @@ bool Config::Upload() {
     if (!max_msg_len_iter->is_number_integer()) {
         return false;
     }
-    max_msg_len_ = std::stoi(std::string(*max_msg_len_iter));
+    max_msg_len_ = *max_msg_len_iter;
 
     secret_ = *secret_iter;
     uri_ = *uri_iter;
@@ -48,7 +51,7 @@ std::string_view Config::GetUri() const {
     return uri_;
 }
 
-std::string_view Config::GetMaxMessageLen() const {
+std::int32_t Config::GetMaxMessageLen() const {
     return max_msg_len_;
 }
 

@@ -5,7 +5,7 @@
 int main(int argc, char* argv[])
 {
     try {
-        hmac_service::Server server(U("http://localhost:8080/"));
+        hmac_service::Server server;
 		
         std::cout << "Press Enter to stop server\n";
         std::string dummy;

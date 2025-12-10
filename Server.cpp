@@ -1,6 +1,9 @@
 #include "Server.h"
+#include "Config.h"
 #include "HmacService.h"
 
+#include <cpprest/http_listener.h>
+#include <cpprest/json.h>
 #include <optional>
 
 namespace hmac_service {
@@ -106,11 +109,19 @@ void HandlePost(http::http_request request) {
 
 }
 
-Server::Server(http::uri uri)
-    : listener_(std::move(uri)) {
+Server::Server() {
 
-	listener_.support(web::http::methods::POST, HandlePost);
-	listener_.open().wait();
+	config_ = std::make_unique<Config>();
+
+	if (config_->Upload()) {
+		listener_ = std::make_unique<http::experimental::listener::http_listener>(std::string(config_->GetUri()));
+
+		listener_->support(web::http::methods::POST, HandlePost);
+		listener_->open().wait();
+	}
+}
+
+Server::~Server() {
 }
 
 }

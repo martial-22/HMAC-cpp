@@ -1,16 +1,23 @@
 #pragma once
 
-#include <cpprest/http_listener.h>
-#include <cpprest/json.h>
+#include <memory>
+
+namespace web::http::experimental::listener {
+class http_listener;
+}
 
 namespace hmac_service {
 
+class Config;
+
 class Server final {
 public:
-    Server(web::http::uri uri);
+    Server();
+    ~Server();
 
 private:
-	web::http::experimental::listener::http_listener listener_;
+    std::unique_ptr<Config> config_;
+	std::unique_ptr<web::http::experimental::listener::http_listener> listener_;
 };
 
 }
