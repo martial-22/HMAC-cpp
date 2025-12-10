@@ -19,6 +19,13 @@ class Config;
 class Server final {
 public:
     Server();
+
+    Server(const Server&) = delete;
+    Server(Server&&) = delete;
+    
+    Server& operator=(const Server&) = delete;
+    Server& operator=(Server&&) = delete;
+
     ~Server();
 
 private:
