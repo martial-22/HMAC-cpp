@@ -11,16 +11,16 @@ TEST(CodecTest, ToBase64UrlEmpty) {
     ASSERT_EQ(codec.ToBase64Url(data, sizeof(data) - 1), ""s);
 }
 
-TEST(CodecTest, ToBase64Url1) {
+TEST(CodecTest, ToBase64UrlHelloWorld) {
     hmac_service::Codec codec;
 
     unsigned char data[] = "hello world!";
     ASSERT_EQ(codec.ToBase64Url(data, sizeof(data) - 1), "aGVsbG8gd29ybGQh"s);
 }
 
-TEST(CodecTest, ToBase64Url2) {
+TEST(CodecTest, ToBase64UrlSpecialSymbols) {
     hmac_service::Codec codec;
 
-    unsigned char data[] = "symbols: + - / $ % & _ -; numbers 17 65";
+    unsigned char data[] = "symbols: + - / $ % & _ -; numbers 17 65 3";
     ASSERT_EQ(codec.ToBase64Url(data, sizeof(data) - 1), "c3ltYm9sczogKyAtIC8gJCAlICYgXyAtOyBudW1iZXJzIDE3IDY1IDM"s);
 }
