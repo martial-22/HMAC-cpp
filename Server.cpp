@@ -15,7 +15,7 @@ std::optional<json::value> ExtractJson(const http::http_request& request) {
 	json::value json_obj;
 	try {
 		request.extract_json()
-			.then([&json_obj](json::value obj) {
+		.then([&json_obj](json::value obj) {
 			json_obj = std::move(obj);
 		})
 		.wait();
