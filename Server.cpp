@@ -82,7 +82,26 @@ void HandleVerify(const json::value& json_obj, const http::http_request& request
 	request.reply(http::status_codes::OK, std::move(reply));
 }
 
-void HandlePost(http::http_request request) {
+}
+
+Server::Server() {
+
+	config_ = std::make_unique<Config>();
+
+	if (config_->Upload()) {
+		listener_ = std::make_unique<http::experimental::listener::http_listener>(std::string(config_->GetUri()));
+
+		listener_->support(web::http::methods::POST, [this](const http::http_request& request) {
+			HandlePost(request);
+		});
+		listener_->open().wait();
+	}
+}
+
+Server::~Server() {
+}
+
+void Server::HandlePost(const http::http_request& request) {
 
 	if (request.headers().content_type() != "application/json"s) {
 		SetErrorReply(request, http::status_codes::UnsupportedMediaType, "unsupported_header"s);
@@ -105,23 +124,6 @@ void HandlePost(http::http_request request) {
 	else {
 		SetErrorReply(request, http::status_codes::BadRequest, "unsupported_endpoint"s);
 	}
-}
-
-}
-
-Server::Server() {
-
-	config_ = std::make_unique<Config>();
-
-	if (config_->Upload()) {
-		listener_ = std::make_unique<http::experimental::listener::http_listener>(std::string(config_->GetUri()));
-
-		listener_->support(web::http::methods::POST, HandlePost);
-		listener_->open().wait();
-	}
-}
-
-Server::~Server() {
 }
 
 }

@@ -2,8 +2,14 @@
 
 #include <memory>
 
-namespace web::http::experimental::listener {
+namespace web::http {
+
+class http_request;
+
+namespace experimental::listener {
 class http_listener;
+}
+
 }
 
 namespace hmac_service {
@@ -16,6 +22,8 @@ public:
     ~Server();
 
 private:
+    void HandlePost(const web::http::http_request& request);
+
     std::unique_ptr<Config> config_;
 	std::unique_ptr<web::http::experimental::listener::http_listener> listener_;
 };
