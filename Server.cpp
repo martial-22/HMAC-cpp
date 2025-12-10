@@ -32,7 +32,7 @@ std::pair<web::http::status_code, json::value> HandleSign(const json::value& jso
 	static constexpr char message_field[]("msg");
 
 	if (!json_obj.has_field(message_field)) {
-		reply["error"s] = json::value::string("invalid_msg");
+		reply["error"s] = json::value::string("invalid_msg"s);
 		return std::make_pair(web::http::status_codes::BadRequest, std::move(reply));
 	}
 	// TODO: check message length
@@ -54,13 +54,13 @@ std::pair<web::http::status_code, json::value> HandleVerify(const json::value& j
 	static constexpr char signature_field[]("signature");
 	
 	if (!json_obj.has_field(message_field)) {
-		reply["error"s] = json::value::string("invalid_msg");
+		reply["error"s] = json::value::string("invalid_msg"s);
 		return std::make_pair(web::http::status_codes::BadRequest, std::move(reply));
 	}
 	// TODO: check message length
 
 	if (!json_obj.has_field(signature_field)) {
-		reply["error"s] = json::value::string("invalid_signature");
+		reply["error"s] = json::value::string("invalid_signature"s);
 		return std::make_pair(web::http::status_codes::BadRequest, std::move(reply));
 	}
 	// TODO: check signature length
@@ -78,9 +78,9 @@ std::pair<web::http::status_code, json::value> HandleVerify(const json::value& j
 void HandlePost(http::http_request request) {
 
 	json::value reply;
-	if (request.headers().find("application/json"s) == request.headers().end()) {
+	if (request.headers().content_type() != "application/json"s) {
 		
-		reply["error"s] = json::value::string("unsupported_header");
+		reply["error"s] = json::value::string("unsupported_header"s);
 		request.reply(web::http::status_codes::UnsupportedMediaType, reply);
 		return;
 	}
@@ -88,7 +88,7 @@ void HandlePost(http::http_request request) {
 	const std::optional<json::value> json_obj = ExtractJson(request);
 	if (!json_obj.has_value()) {
 		
-		reply["error"s] = json::value::string("invalid_json");
+		reply["error"s] = json::value::string("invalid_json"s);
 		request.reply(web::http::status_codes::BadRequest, reply);
 		return;
 	}
@@ -103,7 +103,7 @@ void HandlePost(http::http_request request) {
 		request.reply(status, reply);
 	}
 	else {
-		reply["error"s] = json::value::string("unsupported_endpoint");
+		reply["error"s] = json::value::string("unsupported_endpoint"s);
 		request.reply(web::http::status_codes::BadRequest, reply);
 	}
 }
