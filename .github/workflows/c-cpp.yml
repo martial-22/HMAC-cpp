@@ -16,6 +16,6 @@ jobs:
     - name: install external dependencies
       run: sudo apt-get install libssl-dev libcpprest-dev
     - name: build
-      run: chmod 111 build.sh && ./build.sh
+      run: chmod 711 build.sh && ./build.sh
     - name: units
       run: ./build/tests
