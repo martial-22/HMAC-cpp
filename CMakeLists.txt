@@ -6,10 +6,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(OpenSSL REQUIRED)
 find_package(cpprestsdk REQUIRED)
+find_package(nlohmann_json REQUIRED)
 
 set(LIB
         Codec.h
         Codec.cpp
+        Config.h
+        Config.cpp
         HmacService.h
         HmacService.cpp
         Server.h
@@ -23,6 +26,7 @@ target_link_libraries(hmac_service
         cpprestsdk::cpprest
         OpenSSL::SSL
         OpenSSL::Crypto
+        nlohmann_json::nlohmann_json
 )
 
 add_executable(hmac_service_main
