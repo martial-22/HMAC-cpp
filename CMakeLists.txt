@@ -8,6 +8,8 @@ find_package(OpenSSL REQUIRED)
 find_package(cpprestsdk REQUIRED)
 
 set(LIB
+        Codec.h
+        Codec.cpp
         HmacService.h
         HmacService.cpp
         Server.h
@@ -44,6 +46,7 @@ enable_testing()
 
 add_executable(
         tests
+        CodecTests.cpp
         HmacServiceTests.cpp
 )
 
