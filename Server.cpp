@@ -45,6 +45,10 @@ void HandleSign(const json::value& json_obj, const http::http_request& request, 
 	}
 
 	const std::string message = json_obj.at(message_field).as_string();
+	if (message.empty()) {
+		SetErrorReply(request, http::status_codes::BadRequest, "invalid_msg"s);
+		return;
+	}
 	if (message.size() > config.GetMaxMessageLen()) {
 		SetErrorReply(request, http::status_codes::RequestEntityTooLarge, "too_large_msg"s);
 		return;
@@ -66,6 +70,10 @@ void HandleVerify(const json::value& json_obj, const http::http_request& request
 	}
 
 	const std::string message = json_obj.at(message_field).as_string();
+	if (message.empty()) {
+		SetErrorReply(request, http::status_codes::BadRequest, "invalid_msg"s);
+		return;
+	}
 	if (message.size() > config.GetMaxMessageLen()) {
 		SetErrorReply(request, http::status_codes::RequestEntityTooLarge, "too_large_msg"s);
 		return;
