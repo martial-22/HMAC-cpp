@@ -2,8 +2,7 @@
 
 #include <iostream>
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
     try {
         hmac_service::Server server;
 		

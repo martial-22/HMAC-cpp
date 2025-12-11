@@ -62,3 +62,13 @@ target_link_libraries(tests
 
 include(GoogleTest)
 gtest_discover_tests(tests)
+
+# Rotate-secret
+add_executable(rotate_secret
+        RotateSecret.cpp
+)
+
+target_link_libraries(rotate_secret
+        OpenSSL::SSL
+        nlohmann_json::nlohmann_json
+)

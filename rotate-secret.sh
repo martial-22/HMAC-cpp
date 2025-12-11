@@ -1,0 +1,1 @@
+./build/rotate_secret
