@@ -52,6 +52,7 @@ add_executable(
         tests
         CodecTests.cpp
         HmacServiceTests.cpp
+        ServerTests.cpp
 )
 
 target_link_libraries(tests
@@ -61,14 +62,3 @@ target_link_libraries(tests
 
 include(GoogleTest)
 gtest_discover_tests(tests)
-
-
-# Optional
-# add_executable(rotate_secret
-# )
-
-# target_link_libraries(rotate_secret
-#         PRIVATE
-#         OpenSSL::SSL
-#         OpenSSL::Crypto
-# )
