@@ -16,36 +16,123 @@ TEST(ServerTest, SucceedVerification) {
 
     hmac_service::Server server;
 
-    const web::uri uri(std::string(config.GetUri()));
-    web::http::client::http_client client(uri);
+    const uri uri(std::string(config.GetUri()));
+    http::client::http_client client(uri);
 
     json::value request_json;
-    request_json["msg"] = web::json::value::string("message to server");
+    request_json["msg"] = json::value::string("hello");
 
-    web::http::status_code status;
+    http::status_code status;
     json::value reply;
 
-	client.request(web::http::methods::POST, U("/sign"), request_json)
-        .then([&status, &reply](pplx::task<web::http::http_response> task) {
-            web::http::http_response response = task.get();
+	client.request(http::methods::POST, U("/sign"), request_json)
+        .then([&status, &reply](pplx::task<http::http_response> task) {
+            http::http_response response = task.get();
             status = response.status_code();
             reply = response.extract_json().get();
         })
         .wait();
 
-    ASSERT_EQ(status, web::http::status_codes::OK);
+    ASSERT_EQ(status, http::status_codes::OK);
     ASSERT_TRUE(reply.has_field("signature"));
 
     request_json["signature"] = reply["signature"];
-	client.request(web::http::methods::POST, U("/verify"), request_json)
-        .then([&status, &reply](pplx::task<web::http::http_response> task) {
-            web::http::http_response response = task.get();
+	client.request(http::methods::POST, U("/verify"), request_json)
+        .then([&status, &reply](pplx::task<http::http_response> task) {
+            http::http_response response = task.get();
             status = response.status_code();
             reply = response.extract_json().get();
         })
         .wait();
 
-    ASSERT_EQ(status, web::http::status_codes::OK);
+    ASSERT_EQ(status, http::status_codes::OK);
     ASSERT_TRUE(reply.has_field("ok"));
     ASSERT_TRUE(reply["ok"].as_bool());
+}
+
+TEST(ServerTest, CorruptedSignature) {
+
+    hmac_service::Config config;
+    ASSERT_TRUE(config.Upload());
+
+    hmac_service::Server server;
+
+    const uri uri(std::string(config.GetUri()));
+    http::client::http_client client(uri);
+
+    json::value request_json;
+    request_json["msg"] = json::value::string("hello");
+
+    http::status_code status;
+    json::value reply;
+
+	client.request(http::methods::POST, U("/sign"), request_json)
+        .then([&status, &reply](pplx::task<http::http_response> task) {
+            http::http_response response = task.get();
+            status = response.status_code();
+            reply = response.extract_json().get();
+        })
+        .wait();
+
+    ASSERT_EQ(status, http::status_codes::OK);
+    ASSERT_TRUE(reply.has_field("signature"));
+
+    std::string signature = reply["signature"].as_string();
+    signature.back() = signature.back() == 'a' ? 'b' : 'a';
+
+    request_json["signature"] = web::json::value::string(signature);
+	client.request(http::methods::POST, U("/verify"), request_json)
+        .then([&status, &reply](pplx::task<http::http_response> task) {
+            http::http_response response = task.get();
+            status = response.status_code();
+            reply = response.extract_json().get();
+        })
+        .wait();
+
+    ASSERT_EQ(status, http::status_codes::OK);
+    ASSERT_TRUE(reply.has_field("ok"));
+    ASSERT_FALSE(reply["ok"].as_bool());
+}
+
+TEST(ServerTest, CorruptedMessage) {
+
+    hmac_service::Config config;
+    ASSERT_TRUE(config.Upload());
+
+    hmac_service::Server server;
+
+    const uri uri(std::string(config.GetUri()));
+    http::client::http_client client(uri);
+
+    json::value request_json;
+    request_json["msg"] = json::value::string("hello");
+
+    http::status_code status;
+    json::value reply;
+
+	client.request(http::methods::POST, U("/sign"), request_json)
+        .then([&status, &reply](pplx::task<http::http_response> task) {
+            http::http_response response = task.get();
+            status = response.status_code();
+            reply = response.extract_json().get();
+        })
+        .wait();
+
+    ASSERT_EQ(status, http::status_codes::OK);
+    ASSERT_TRUE(reply.has_field("signature"));
+
+    request_json["msg"] = json::value::string("hello!");
+    request_json["signature"] = reply["signature"];
+
+	client.request(http::methods::POST, U("/verify"), request_json)
+        .then([&status, &reply](pplx::task<http::http_response> task) {
+            http::http_response response = task.get();
+            status = response.status_code();
+            reply = response.extract_json().get();
+        })
+        .wait();
+
+    ASSERT_EQ(status, http::status_codes::OK);
+    ASSERT_TRUE(reply.has_field("ok"));
+    ASSERT_FALSE(reply["ok"].as_bool());
 }
