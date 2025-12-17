@@ -290,11 +290,6 @@ TEST(ServerTest, Stability) {
     }
 }
 
-TEST(ServerTest, ConstantTimeCompare) {
-    SecretManager().GenerateSecret();
-
-}
-
 TEST(ServerTest, InvalidSecret) {
     SecretManager().GenerateSecret("#$@^&");
 
