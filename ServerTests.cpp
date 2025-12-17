@@ -17,6 +17,7 @@ TEST(ServerTest, SucceedVerification) {
     ASSERT_TRUE(config.Upload());
 
     hmac_service::Server server;
+    ASSERT_TRUE(server.IsListening());
 
     const uri uri(std::string(config.GetUri()));
     http::client::http_client client(uri);
@@ -59,6 +60,7 @@ TEST(ServerTest, CorruptedSignature) {
     ASSERT_TRUE(config.Upload());
 
     hmac_service::Server server;
+    ASSERT_TRUE(server.IsListening());
 
     const uri uri(std::string(config.GetUri()));
     http::client::http_client client(uri);
@@ -104,6 +106,7 @@ TEST(ServerTest, CorruptedMessage) {
     ASSERT_TRUE(config.Upload());
 
     hmac_service::Server server;
+    ASSERT_TRUE(server.IsListening());
 
     const uri uri(std::string(config.GetUri()));
     http::client::http_client client(uri);
@@ -148,6 +151,7 @@ TEST(ServerTest, InvalidSignatureFormat) {
     ASSERT_TRUE(config.Upload());
 
     hmac_service::Server server;
+    ASSERT_TRUE(server.IsListening());
 
     const uri uri(std::string(config.GetUri()));
     http::client::http_client client(uri);
@@ -181,6 +185,7 @@ TEST(ServerTest, EmptyMessage) {
     ASSERT_TRUE(config.Upload());
 
     hmac_service::Server server;
+    ASSERT_TRUE(server.IsListening());
 
     const uri uri(std::string(config.GetUri()));
     http::client::http_client client(uri);
@@ -212,6 +217,7 @@ TEST(ServerTest, MessageLenIsExceeded) {
     ASSERT_TRUE(config.Upload());
 
     hmac_service::Server server;
+    ASSERT_TRUE(server.IsListening());
 
     const uri uri(std::string(config.GetUri()));
     http::client::http_client client(uri);
@@ -244,6 +250,7 @@ TEST(ServerTest, Stability) {
     ASSERT_TRUE(config.Upload());
 
     hmac_service::Server server;
+    ASSERT_TRUE(server.IsListening());
 
     const uri uri(std::string(config.GetUri()));
     http::client::http_client client(uri);
@@ -289,6 +296,8 @@ TEST(ServerTest, ConstantTimeCompare) {
 }
 
 TEST(ServerTest, InvalidSecret) {
-    SecretManager().GenerateSecret();
+    SecretManager().GenerateSecret("#$@^&");
 
+    hmac_service::Server server;
+    ASSERT_FALSE(server.IsListening());
 }

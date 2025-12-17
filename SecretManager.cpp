@@ -42,7 +42,7 @@ void SecretManager::GenerateSecret(std::string alphabet) {
     }
 
     std::array<unsigned char, 64> secret;
-    js["secret"s] = GenerateBase64URLRandomString(base64url_alphabet, secret.size());
+    js["secret"s] = GenerateBase64URLRandomString(alphabet, secret.size());
         
     std::ofstream ofs("config.json"s);
     ofs << std::setw(4) << js << std::endl;
