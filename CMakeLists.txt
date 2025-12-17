@@ -37,6 +37,16 @@ target_link_libraries(hmac_service_main
         hmac_service
 )
 
+# Secret manager
+add_library(secret_manager 
+        SecretManager.h
+        SecretManager.cpp)
+
+target_link_libraries(secret_manager
+        PRIVATE
+        nlohmann_json::nlohmann_json
+)
+
 # Google tests
 include(FetchContent)
 FetchContent_Declare(
@@ -69,6 +79,5 @@ add_executable(rotate_secret
 )
 
 target_link_libraries(rotate_secret
-        OpenSSL::SSL
-        nlohmann_json::nlohmann_json
+        secret_manager
 )
