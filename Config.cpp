@@ -1,4 +1,5 @@
 #include "Config.h"
+#include "Codec.h"
 
 #include <fstream>
 #include <nlohmann/json.hpp>
@@ -39,6 +40,10 @@ bool Config::Upload() {
     max_msg_len_ = *max_msg_len_iter;
 
     secret_ = *secret_iter;
+    if (!Codec().ValidateBase64Url(secret_)) {
+        return false;
+    }
+
     uri_ = *uri_iter;
     return true;
 }

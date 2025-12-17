@@ -274,3 +274,11 @@ TEST(ServerTest, Stability) {
         ASSERT_EQ(signature, reply["signature"].as_string());
     }
 }
+
+TEST(ServerTest, ConstantTimeCompare) {
+
+}
+
+TEST(ServerTest, InvalidSecret) {
+
+}

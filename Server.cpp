@@ -126,6 +126,10 @@ Server::Server() {
 Server::~Server() {
 }
 
+bool Server::IsListening() const {
+	return listener_ != nullptr;
+}
+
 void Server::HandlePost(const http::http_request& request) {
 
 	if (request.headers().content_type() != "application/json"s) {
