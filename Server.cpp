@@ -1,6 +1,7 @@
 #include "Server.h"
 #include "Config.h"
 #include "HmacService.h"
+#include "Codec.h"
 
 #include <cpprest/http_listener.h>
 #include <cpprest/json.h>
@@ -84,8 +85,13 @@ void HandleVerify(const json::value& json_obj, const http::http_request& request
 		SetErrorReply(request, http::status_codes::BadRequest, "invalid_signature"s);
 		return;
 	}
-
+	
 	const std::string signature = json_obj.at(signature_field).as_string();
+	if (!Codec().ValidateBase64Url(signature)) {
+		SetErrorReply(request, http::status_codes::BadRequest, "invalid_signature_format"s);
+		return;
+	}
+
 	if (signature.size() > config.GetMaxMessageLen()) {
 		SetErrorReply(request, http::status_codes::RequestEntityTooLarge, "too_large_signature"s);
 		return;

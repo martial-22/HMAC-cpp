@@ -30,3 +30,8 @@ TEST(CodecTest, ToBase64UrlSpecialSymbols) {
     ASSERT_TRUE(codec.ValidateBase64Url(result));
     ASSERT_EQ(result, "c3ltYm9sczogKyAtIC8gJCAlICYgXyAtOyBudW1iZXJzIDE3IDY1IDM"s);
 }
+
+TEST(CodecTest, ValidateBase64UrlInvalidFormat) {
+    hmac_service::Codec codec;
+    ASSERT_FALSE(codec.ValidateBase64Url("12#$"));
+}

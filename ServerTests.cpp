@@ -139,6 +139,34 @@ TEST(ServerTest, CorruptedMessage) {
 
 TEST(ServerTest, InvalidSignatureFormat) {
 
+    hmac_service::Config config;
+    ASSERT_TRUE(config.Upload());
+
+    hmac_service::Server server;
+
+    const uri uri(std::string(config.GetUri()));
+    http::client::http_client client(uri);
+
+    json::value request_json;
+
+    http::status_code status;
+    json::value reply;
+
+    request_json["msg"] = json::value::string("hello!");
+    request_json["signature"] = json::value::string("@@@");
+
+	client.request(http::methods::POST, U("/verify"), request_json)
+        .then([&status, &reply](pplx::task<http::http_response> task) {
+            http::http_response response = task.get();
+            status = response.status_code();
+            reply = response.extract_json().get();
+        })
+        .wait();
+
+    ASSERT_EQ(status, http::status_codes::BadRequest);
+    ASSERT_TRUE(reply.has_field("error"s));
+
+    ASSERT_EQ(reply["error"].as_string(), "invalid_signature_format"s);
 }
 
 TEST(ServerTest, EmptyMessage) {

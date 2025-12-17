@@ -15,7 +15,7 @@ TODO
 ```
 {
     "hmac_alg": "SHA256",
-    "secret": "<base64>",
+    "secret": "<base64url>",
     "log_level": "info/warn/error",
     "listen": "0.0.0.0:8080",
     "max_msg_size_bytes": 1048576
