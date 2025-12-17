@@ -8,19 +8,25 @@ TEST(CodecTest, ToBase64UrlEmpty) {
     hmac_service::Codec codec;
 
     unsigned char data[] = "";
-    ASSERT_EQ(codec.ToBase64Url(data, sizeof(data) - 1), ""s);
+    std::string result = codec.ToBase64Url(data, sizeof(data) - 1);
+    ASSERT_TRUE(codec.ValidateBase64Url(result));
+    ASSERT_EQ(result, ""s);
 }
 
 TEST(CodecTest, ToBase64UrlHelloWorld) {
     hmac_service::Codec codec;
 
     unsigned char data[] = "hello world!";
-    ASSERT_EQ(codec.ToBase64Url(data, sizeof(data) - 1), "aGVsbG8gd29ybGQh"s);
+    std::string result = codec.ToBase64Url(data, sizeof(data) - 1);
+    ASSERT_TRUE(codec.ValidateBase64Url(result));
+    ASSERT_EQ(result, "aGVsbG8gd29ybGQh"s);
 }
 
 TEST(CodecTest, ToBase64UrlSpecialSymbols) {
     hmac_service::Codec codec;
 
     unsigned char data[] = "symbols: + - / $ % & _ -; numbers 17 65 3";
-    ASSERT_EQ(codec.ToBase64Url(data, sizeof(data) - 1), "c3ltYm9sczogKyAtIC8gJCAlICYgXyAtOyBudW1iZXJzIDE3IDY1IDM"s);
+    std::string result = codec.ToBase64Url(data, sizeof(data) - 1);
+    ASSERT_TRUE(codec.ValidateBase64Url(result));
+    ASSERT_EQ(result, "c3ltYm9sczogKyAtIC8gJCAlICYgXyAtOyBudW1iZXJzIDE3IDY1IDM"s);
 }
