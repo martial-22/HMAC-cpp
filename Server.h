@@ -33,8 +33,8 @@ public:
 private:
     void HandlePost(const web::http::http_request& request);
 
-    std::unique_ptr<Config> config_ = nulltpr;
-	std::unique_ptr<web::http::experimental::listener::http_listener> listener_ = nulltpr;
+    std::unique_ptr<Config> config_ = nullptr;
+	std::unique_ptr<web::http::experimental::listener::http_listener> listener_ = nullptr;
 };
 
 }
