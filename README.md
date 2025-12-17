@@ -2,12 +2,13 @@
 
 ## Требования к окружению и установка
 
-1. Установить OpenSSL.
-2. Установить cpprestsdk.
-3. Установить компилятор GCC или Clang.
-4. Запустить скрипт сборки build.sh из корня проекта.
+1. Установить OpenSSL: sudo apt-get install libssl-dev.
+2. Установить cpprestsdk: sudo apt-get install libcpprest-dev.
+3. Установить nlohmann/json: sudo apt-get install nlohmann-json3-dev.
+4. Установить компилятор GCC версии 13, или старше.
+5. Запустить скрипт сборки build.sh из корня проекта.
 
-## Как сгенерировать секрет (пример команд для выбранного стека)
+## Как сгенерировать секретЫ
 TODO
 
 ## Формат config.json
