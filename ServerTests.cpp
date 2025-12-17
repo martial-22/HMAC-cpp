@@ -1,5 +1,6 @@
 #include "Server.h"
 #include "Config.h"
+#include "SecretManager.h"
 
 #include <gtest/gtest.h>
 #include <cpprest/http_headers.h>
@@ -10,6 +11,7 @@ using namespace web;
 using namespace std::literals;
 
 TEST(ServerTest, SucceedVerification) {
+    SecretManager().GenerateSecret();
 
     hmac_service::Config config;
     ASSERT_TRUE(config.Upload());
@@ -51,6 +53,7 @@ TEST(ServerTest, SucceedVerification) {
 }
 
 TEST(ServerTest, CorruptedSignature) {
+    SecretManager().GenerateSecret();
 
     hmac_service::Config config;
     ASSERT_TRUE(config.Upload());
@@ -95,6 +98,7 @@ TEST(ServerTest, CorruptedSignature) {
 }
 
 TEST(ServerTest, CorruptedMessage) {
+    SecretManager().GenerateSecret();
 
     hmac_service::Config config;
     ASSERT_TRUE(config.Upload());
@@ -138,6 +142,7 @@ TEST(ServerTest, CorruptedMessage) {
 }
 
 TEST(ServerTest, InvalidSignatureFormat) {
+    SecretManager().GenerateSecret();
 
     hmac_service::Config config;
     ASSERT_TRUE(config.Upload());
@@ -170,6 +175,7 @@ TEST(ServerTest, InvalidSignatureFormat) {
 }
 
 TEST(ServerTest, EmptyMessage) {
+    SecretManager().GenerateSecret();
 
     hmac_service::Config config;
     ASSERT_TRUE(config.Upload());
@@ -200,6 +206,7 @@ TEST(ServerTest, EmptyMessage) {
 }
 
 TEST(ServerTest, MessageLenIsExceeded) {
+    SecretManager().GenerateSecret();
 
     hmac_service::Config config;
     ASSERT_TRUE(config.Upload());
@@ -231,6 +238,7 @@ TEST(ServerTest, MessageLenIsExceeded) {
 }
 
 TEST(ServerTest, Stability) {
+    SecretManager().GenerateSecret();
 
     hmac_service::Config config;
     ASSERT_TRUE(config.Upload());
@@ -276,9 +284,11 @@ TEST(ServerTest, Stability) {
 }
 
 TEST(ServerTest, ConstantTimeCompare) {
+    SecretManager().GenerateSecret();
 
 }
 
 TEST(ServerTest, InvalidSecret) {
+    SecretManager().GenerateSecret();
 
 }
