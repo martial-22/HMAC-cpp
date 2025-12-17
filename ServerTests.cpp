@@ -295,4 +295,5 @@ TEST(ServerTest, InvalidSecret) {
 
     hmac_service::Server server;
     ASSERT_FALSE(server.IsListening());
+    SecretManager().GenerateSecret();
 }
