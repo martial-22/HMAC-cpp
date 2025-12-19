@@ -12,7 +12,7 @@ using namespace std::literals;
 std::string GenerateBase64URLRandomString(const std::string& alphabet, std::size_t size) {
         
     std::random_device rd;
-    std::mt19937 generator(rd());
+    static std::mt19937 generator(rd());
     std::uniform_int_distribution<int> distribution(0, alphabet.size() - 1);
         
     std::string result;
@@ -24,7 +24,7 @@ std::string GenerateBase64URLRandomString(const std::string& alphabet, std::size
     return result;
 }
 
-void SecretManager::GenerateSecret(std::string alphabet) {
+void SecretManager::GenerateSecret(const std::string& alphabet) {
 
     std::fstream ifs("config.json"s);
     if (!ifs.is_open()) {
@@ -45,5 +45,9 @@ void SecretManager::GenerateSecret(std::string alphabet) {
     js["secret"s] = GenerateBase64URLRandomString(alphabet, secret.size());
         
     std::ofstream ofs("config.json"s);
+    if (!ofs.is_open()) {
+        std::cerr << "config.json cannot be opened for write"s << std::endl;
+        return;
+    }
     ofs << std::setw(4) << js << std::endl;
 }

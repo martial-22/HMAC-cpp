@@ -30,7 +30,9 @@ bool Config::Upload() {
     auto uri_iter = json.find("listen"s);
     auto max_msg_len_iter = json.find("max_msg_size_bytes"s);
 
-    if (secret_iter == json.end() || uri_iter == json.end() || max_msg_len_iter == json.end()) {
+    if (secret_iter == json.end()
+        || uri_iter == json.end()
+        || max_msg_len_iter == json.end()) {
         return false;
     }
     

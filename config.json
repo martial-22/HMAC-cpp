@@ -3,5 +3,5 @@
     "listen": "http://0.0.0.0:8080",
     "log_level": "debug",
     "max_msg_size_bytes": 1048576,
-    "secret": "^&$&@^$&@^&^$$^#@&^$$#$&@&@&$$#$^^$^#@&^$#$#$###$&#&@#$$#@$@$^&$"
+    "secret": "_ZKItmWD82O5RLCDDU6pztzbDGi5tHEdwbMby--4CkBO0ODlXBMtX5N0jky_f2zv"
 }

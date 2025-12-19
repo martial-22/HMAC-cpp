@@ -7,7 +7,11 @@ namespace hmac_service {
 
 std::string Codec::ToBase64Url(const unsigned char* data, std::size_t len) {
     
-    std::string out(4 * ((len + 2) / 3), '\0');
+    static constexpr int bytes_in_symbol = 4;
+    static constexpr int bytes_in_encoded = 3;
+    static constexpr int padding = 2;
+
+    std::string out(bytes_in_symbol * ((len + padding) / bytes_in_encoded), '\0');
     int n = EVP_EncodeBlock(reinterpret_cast<unsigned char*>(&out[0]), data, static_cast<int>(len));
     out.resize(n);
 
